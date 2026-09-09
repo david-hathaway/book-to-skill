@@ -47,8 +47,8 @@
 **How it works, in 3 steps:**
 
 1. **Point** it at a file, folder, or glob — `/book-to-skill ./my-book.pdf`
-2. **It distills** the book into a skill — frameworks, decision rules, anti-patterns, and per-chapter files. Structure, not a summary.
-3. **Your agent loads it on demand** — ask `/my-book replication` and it reads the right chapter and answers from the real content, no hallucination.
+2. **It distills** the source into a skill — frameworks, decision rules, anti-patterns, and either chapter files or compact source notes. Structure, not a summary.
+3. **Your agent loads it on demand** — ask `/my-skill replication` and it reads the relevant chapter or source note before answering.
 
 ---
 
@@ -77,13 +77,12 @@ Running `/book-to-skill your-book.pdf` (or a folder, glob, or list of files) cre
 
 | File | Purpose | Size |
 |------|---------|------|
-| `SKILL.md` | Core mental models + chapter index | ~4,000 tokens |
-| `chapters/ch01-*.md` … | One file per chapter, loaded on-demand | ~1,000 tokens each |
-| `glossary.md` | Every key term, alphabetically sorted with chapter refs | ~1,500 tokens |
-| `patterns.md` | All techniques, algorithms, and design patterns | ~2,000 tokens |
-| `cheatsheet.md` | Decision tables and quick-reference rules | ~1,000 tokens |
+| `SKILL.md` | Core mental models + chapter or source index | proportional to source |
+| `chapters/ch01-*.md` … | One file per chapter for long structured works | ~1,000 tokens each |
+| `sources/source-01-*.md` … | One compact note per article or other short work | proportional to source |
+| `glossary.md`, `patterns.md`, `cheatsheet.md` | Supporting references for long works only | as needed |
 
-**Chapter files are loaded on-demand** — they don't count against the skill budget until you ask about that topic.
+**Chapter files and source notes are loaded on-demand** — they do not count against the skill budget until you ask about that topic.
 
 ---
 
@@ -95,6 +94,7 @@ The name says "book", but the input is any structured prose. The same extraction
 - **Brand & design systems** — voice guidelines, tone-of-voice docs, component principles. Turn a brand book into a skill your team queries instead of skimming a 60-page PDF.
 - **Research clusters** — a stack of papers plus your own notes, merged into a single unified skill and updated as new material lands (see [Update / fold-in](#-usage)).
 - **Specs & standards** — RFCs, API contracts, compliance docs you reference but never memorize.
+- **Articles and essays** — keep a useful article as one compact source note, not a fake multi-chapter book with empty supporting files.
 
 If you re-open a document often enough to wish you'd memorized it, it's a candidate.
 
@@ -111,7 +111,7 @@ A PDF-reading agent doesn't just read — it *navigates*: it re-fetches the ToC,
 
 ## ⚙️ How it works
 
-Two halves: a deterministic Python **extractor** (document → clean text + metadata) and a spec-driven **generator** (your agent follows `SKILL.md` to turn that into a structured skill). On-demand chapter files keep the loaded skill small.
+Two halves: a deterministic Python **extractor** (document → clean text + metadata) and a spec-driven **generator** (your agent follows `SKILL.md` to turn that into a structured skill). Long works receive on-demand chapter files; articles and other short works receive compact source notes.
 
 🔧 **Full walkthrough (Steps 0–10, extraction modes, token budgets) → [docs/how-it-works.md](docs/how-it-works.md)**
 

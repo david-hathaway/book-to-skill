@@ -44,11 +44,12 @@ document into clean text + metadata; the agent turns that into a structured skil
                   $HERMES_HOME/skills/<category>/  Hermes Agent
                   .github/skills/ | .claude/skills/ | .agents/skills/  project-local
                   .hermes/skills/<category>/                         Hermes project-local
-                  SKILL.md         core frameworks + chapter & topic index (~4K)
-                  chapters/*.md    on-demand, loaded only when asked
-                  glossary.md      terms
-                  patterns.md      techniques
-                  cheatsheet.md    decision rules / trees / trade-offs / tells
+                  SKILL.md         core frameworks + chapter/source & topic index
+                  chapters/*.md    long works: on-demand chapter notes
+                  sources/*.md     short works: one compact note per source
+                  glossary.md      long works: terms
+                  patterns.md      long works: techniques
+                  cheatsheet.md    long works: decision rules / trees / trade-offs / tells
 ```
 
 ## Design principles
@@ -99,7 +100,7 @@ is layered:
   the generator (Step 9.5) that flags instruction-override phrases, model-control
   tags, residual invisible Unicode, authority-widening frontmatter, and
   exfiltration-shaped content across the generated `SKILL.md`, `chapters/*.md`,
-  `glossary.md`, `patterns.md`, and `cheatsheet.md`. Findings name only the rule and
+  `sources/*.md`, `glossary.md`, `patterns.md`, and `cheatsheet.md`. Findings name only the rule and
   file location — never the matched text.
 - **CI** — CodeQL, Bandit (gate on HIGH), Zizmor, and dependency CVE review on PRs.
 

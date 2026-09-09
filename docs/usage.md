@@ -20,6 +20,12 @@ Supported document formats: PDF, EPUB, DOCX, TXT, Markdown, reStructuredText, As
 # Process all supported files in a folder together
 /book-to-skill ~/workspace/project-docs/ project-knowledge
 
+# Convert one article into a compact source-note skill
+/book-to-skill ~/reading/local-ai-article.html local-ai-notes
+
+# Convert several independent articles into one indexed source-note skill
+/book-to-skill "~/reading/home-services/*.md" home-services-reading
+
 # Process files matching a glob pattern
 /book-to-skill "~/books/*.epub" my-library
 

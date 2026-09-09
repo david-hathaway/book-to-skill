@@ -25,14 +25,15 @@ scripts/extract.py <paths…> --mode <technical|text>
      └── /tmp/book_skill_work/metadata.json   (aggregated stats + per-source array)
                │
                ▼
-          Claude analyzes structure
-          (title, author, chapters, ToC — spanning all sources)
+          Claude analyzes structure and selects an output shape
+          (long work → chapters; short work → one compact source note)
           ── or, if targeting an existing skill: folds new content in (Mode 4)
                │
                ▼
-          Generates per-chapter summaries  (800–1,200 tokens each)
-          technical → includes Code Examples + Reference Tables sections
-          Generates glossary, patterns, cheatsheet
+          Generates per-chapter summaries for long works
+          or one compact source note per short work
+          technical long works → Code Examples + Reference Tables sections
+          Long works may add glossary, patterns, cheatsheet
           Generates master SKILL.md with core mental models
                │
                ▼
@@ -72,7 +73,7 @@ PDF every session.
 1. **Density over completeness** — a 1,000-token summary beats a 10,000-token excerpt
 2. **Practitioner voice** — "Use X when Y", not "The book explains X"
 3. **Front-loaded SKILL.md** — compaction keeps the first ~5,000 tokens; the most important content comes first
-4. **On-demand chapters** — the topic index tells Claude which file to read; chapters load only when needed
+4. **On-demand notes** — the topic index tells Claude which chapter or source note to read; it loads only when needed
 5. **Never raw text** — always synthesize, summarize, extract signal from the source
 
 </details>

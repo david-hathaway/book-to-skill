@@ -309,6 +309,24 @@ Then read the Table of Contents section if present to map all chapters.
 
 ---
 
+## Step 3.5 — Select output shape
+
+Set `SOURCE_SHAPE` from the extracted metadata and structure. Do not ask another
+question.
+
+- Set `SOURCE_SHAPE=long` for a book, a long report, or a coherent source with
+  meaningful chapters or major sections. Continue with chapter files.
+- Set `SOURCE_SHAPE=short` for one short article, essay, paper, post, brief, or
+  similar self-contained work without meaningful chapter divisions. For a batch
+  of independent short works, use one source note per work.
+
+The goal is useful retrieval, not uniform file structure. Do not invent chapters
+for a short source, split a 2,000-word article into empty chapter files, or pad a
+small source with a glossary. A short-source skill is a compact reusable brief:
+one source note per work plus a concise master index.
+
+---
+
 ## Step 4 — Ask purpose (Full Conversion only)
 
 Before generating, ask the user:
@@ -369,12 +387,47 @@ If the user selects **Update / Fold-in**, proceed immediately to the **Update / 
 ## Step 6 — Create skill directory structure
 
 ```bash
-mkdir -p "$SKILLS_HOME/<skill_name>/chapters"
+mkdir -p "$SKILLS_HOME/<skill_name>"
+# SOURCE_SHAPE=long:  mkdir -p "$SKILLS_HOME/<skill_name>/chapters"
+# SOURCE_SHAPE=short: mkdir -p "$SKILLS_HOME/<skill_name>/sources"
 ```
 
 ---
 
-## Step 7 — Generate chapter summaries
+## Step 7 — Generate source notes or chapter summaries
+
+If `SOURCE_SHAPE=short`, create `sources/` instead of `chapters/`. For each
+source, create `sources/source-01-<slug>.md` (then `source-02-...`) with only
+the information the source supports:
+
+```markdown
+# <Source Title>
+
+## Source Details
+<author or publisher, publication date when known, source type, and locator>
+
+## Core Claim
+<the source's central argument or purpose>
+
+## Reusable Ideas
+- **<idea>**: <precise claim and when it is useful>
+
+## Practical Application
+<concrete choices, steps, or questions the source supports>
+
+## Limits and Context
+<scope, assumptions, missing evidence, or material caveats>
+
+## Key Takeaways
+1. <actionable insight>
+```
+
+Keep each note proportional to its source. Skip `glossary.md`, `patterns.md`,
+and `cheatsheet.md` for short-source output. The master SKILL.md carries the
+cross-source topic index and the few reusable ideas worth loading by default.
+After writing the source notes, continue at Step 9.
+
+If `SOURCE_SHAPE=long`, use the chapter workflow below.
 
 **TOKEN BUDGET RULE — CRITICAL (adaptive):**
 
@@ -459,6 +512,8 @@ Create `$SKILLS_HOME/<skill_name>/chapters/ch<NN>-<slug>.md` using the structure
 
 ## Step 8 — Generate supporting files
 
+This step applies only when `SOURCE_SHAPE=long`.
+
 ### glossary.md
 Create `$SKILLS_HOME/<skill_name>/glossary.md`:
 - Every significant term from the book, alphabetically sorted
@@ -495,7 +550,10 @@ Avoid: bare term→definition rows (that's the glossary), and prose paragraphs (
 **CRITICAL TOKEN BUDGET: Keep SKILL.md body under 4,000 tokens.**
 Compaction truncates from the END — put the most important content FIRST.
 
-Create `$SKILLS_HOME/<skill_name>/SKILL.md`:
+Create `$SKILLS_HOME/<skill_name>/SKILL.md`. For `SOURCE_SHAPE=long`, use the
+chapter-oriented template below. For `SOURCE_SHAPE=short`, use the short-source
+substitution immediately after it: replace book/chapter language with the actual
+source type, omit supporting-file links, and keep the master concise.
 
 ```markdown
 ---
@@ -559,6 +617,37 @@ or ask the agent directly.
 <if images_dropped > 5: state that N source images were not read>
 ```
 
+For `SOURCE_SHAPE=short`, replace the metadata and Chapter Index portions with:
+
+```markdown
+# <Skill Title>
+**Sources**: <N> | **Generated**: <YYYY-MM-DD>
+
+## How to Use This Skill
+
+- **Without arguments** — load the core reusable ideas
+- **With a topic** — read the relevant source note before answering
+- **Browse** — ask "what sources do you have?" to see the full index
+
+## Core Reusable Ideas
+<Only the highest-signal claims or methods repeated across, or central to, the source set.>
+
+## Source Index
+
+| Source | Type | Main ideas |
+|--------|------|------------|
+| [source-01](sources/source-01-<slug>.md) | <article, essay, brief, or paper> | <idea 1>, <idea 2> |
+
+## Topic Index
+
+- **<Term>** → source-01
+
+## Scope & Limits
+
+This skill synthesizes the listed sources. It does not establish facts beyond
+their evidence or replace reading the original when exact wording matters.
+```
+
 ---
 
 ## Step 9.5 — Scan the generated skill
@@ -616,15 +705,14 @@ Then report to the user:
 ```
 ✅ Skill created: $SKILLS_HOME/<skill_name>/
 
-📚 Book: <Full Title> — <Author>
-📄 Pages: ~<N> | Chapters: <N>
+📚 Source set: <Full Title or source-set name>
+📄 <for long: Pages ~<N> | Chapters <N>; for short: Sources <N>>
 
 Files generated:
   SKILL.md         — core frameworks + index   (~X tokens)
-  chapters/        — <N> chapter summaries     (~X tokens each, ~X total)
-  glossary.md      — key terms                 (~X tokens)
-  patterns.md      — techniques & patterns     (~X tokens)
-  cheatsheet.md    — quick reference           (~X tokens)
+  <for long: chapters/ — <N> chapter summaries (~X tokens each, ~X total)>
+  <for short: sources/ — <N> compact source notes (~X tokens each, ~X total)>
+  <for long only: glossary.md / patterns.md / cheatsheet.md>
   ─────────────────────────────────────────────────────
   Total skill size: ~X tokens (loaded on-demand, not all at once)
 
@@ -633,7 +721,8 @@ Files generated:
 Usage:
   Ask for <skill_name>                  → load core frameworks
   Ask <skill_name> about <topic>        → find and explain a topic
-  Ask <skill_name> for ch<N>            → dive into a specific chapter
+  <for long: Ask <skill_name> for ch<N> → dive into a specific chapter>
+  <for short: Ask <skill_name> for source-<N> → read a specific source note>
 
 Reload (if your agent doesn't auto-detect new skills):
   GitHub Copilot CLI:  /skills reload
@@ -706,22 +795,25 @@ When performing an Update/Fold-in operation on an existing skill at `$SKILLS_HOM
 
 ### 1. Read Existing Skill Structure
 Read and parse the existing skill's files:
-- Read `$SKILLS_HOME/<skill_name>/SKILL.md` to parse the existing **Chapter Index**, **Topic Index**, metadata (author, total chapters), and **Core Frameworks**.
-- List all files in `$SKILLS_HOME/<skill_name>/chapters/` to find the highest chapter number (e.g. `ch12`).
-- Read `$SKILLS_HOME/<skill_name>/glossary.md`, `$SKILLS_HOME/<skill_name>/patterns.md`, and `$SKILLS_HOME/<skill_name>/cheatsheet.md` to see what terms and frameworks are already indexed.
+- Read `$SKILLS_HOME/<skill_name>/SKILL.md` to identify whether it has a **Chapter Index** or **Source Index**, plus its Topic Index and core ideas.
+- For chapter-shaped skills, list `chapters/` and find the highest chapter number (e.g. `ch12`). For short-source skills, list `sources/` and find the highest source number.
+- Read `glossary.md`, `patterns.md`, and `cheatsheet.md` only if they exist; short-source skills normally omit them.
 
 ### 2. Match Content & Identify Revisions vs. Additions
 Analyze the new extracted text in this run's `full_text.txt` (the `Text ->` path from the extraction output) to identify if the new content represents:
 - **Updates/Revisions to existing chapters**: If a section of the new content directly updates or expands an existing chapter's topic, read the existing chapter file, merge the new details into it, and rewrite the file.
-- **New additions**: If the content introduces new chapters, papers, or separate sections, create **new chapter summary files** under `chapters/`. Start numbering these files after the highest existing chapter number (e.g. if the existing chapters stop at `ch12`, create `ch13-*.md`, `ch14-*.md`, etc.).
+- **New additions**: For a chapter-shaped skill, create new chapter files under `chapters/`. For a short-source skill, create one compact source note under `sources/` for each independent article or other short work. Continue that shape rather than converting old source notes into artificial chapters.
 
 ### 3. Generate or Update Chapter Summary Files
-For each new or revised chapter:
+For each new or revised chapter or source note:
 - Read the corresponding section of the extracted new text.
-- Follow the formatting guidelines in **Step 7** to build the summary.
-- Write/update the file in `$SKILLS_HOME/<skill_name>/chapters/`.
+- Follow the applicable formatting guidelines in **Step 7**.
+- Write/update the file in `chapters/` or `sources/` to match the existing skill shape.
 
 ### 4. Merge Supporting Files
+For a short-source skill, skip this step unless a prior long-work conversion
+already created the file. Do not add empty supporting files during a fold-in.
+
 - **Merge glossary.md**:
   - Read the existing `$SKILLS_HOME/<skill_name>/glossary.md`.
   - Extract all new terms and definitions from the new content (Step 8 glossary guidelines).
@@ -739,10 +831,10 @@ For each new or revised chapter:
 
 ### 5. Re-generate the Master SKILL.md
 Update the master skill file `$SKILLS_HOME/<skill_name>/SKILL.md`:
-- **Metadata**: Increment the chapter count, update the estimated page count, and add the new source names if appropriate. Update the `Generated` date to the current date.
+- **Metadata**: Update the chapter count for long skills or source count for short-source skills, update the estimated page count when meaningful, and update the `Generated` date.
 - **Core Frameworks**: Fold in the most high-impact mental models or principles from the new content (ensuring the overall file remains under 4,000 tokens).
-- **Chapter Index**: Append the new chapters to the index table, linking to the newly created files.
-- **Topic Index**: Merge the new topics alphabetically. If an existing topic is also covered in the new chapters, append the new chapter links to its line (e.g. `- **Topic** → ch05, ch13`).
+- **Chapter or Source Index**: Append the new files to the matching index table.
+- **Topic Index**: Merge the new topics alphabetically and link to the matching chapters or source notes.
 
 ### 6. Scan, Cleanup, and Report
 Once the files are successfully written and merged, run **Step 9.5**, then proceed to **Step 10** to perform cleanup and print a custom update report summarizing the newly added chapters, merged glossary terms, and updated indices. If the skill folder is a git repository with a remote (published via **Step 11**), offer to commit the update and push it.
@@ -758,4 +850,4 @@ Once the files are successfully written and merged, run **Step 9.5**, then proce
 5. **Front-load SKILL.md** — compaction keeps the first 5,000 tokens; most important content comes first
 6. **Chapter files are on-demand** — they don't count against skill budget until loaded
 7. **Never copy raw book text** — always synthesize, summarize, extract signal
-8. **Topic index is critical** — it's how the agent navigates to the right chapter file
+8. **Topic index is critical** — it's how the agent navigates to the right chapter or source note

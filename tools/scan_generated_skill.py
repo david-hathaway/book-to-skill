@@ -16,6 +16,7 @@ MAX_SKILL_FILES = 1_000
 MAX_FILE_BYTES = 2 * 1024 * 1024
 MAX_TOTAL_BYTES = 20 * 1024 * 1024
 SUPPORTING_FILENAMES = ("glossary.md", "patterns.md", "cheatsheet.md")
+GENERATED_CONTENT_DIRECTORIES = ("chapters", "sources")
 
 # Reuse the extractor's invisible-code-point set instead of duplicating it, so
 # the two injection defenses cannot drift apart. They previously did: the
@@ -149,7 +150,7 @@ def unscanned_markdown(path: Path) -> list[str]:
     """Markdown files present in the skill directory but outside the scan scope.
 
     The scope is deliberately bounded to what book-to-skill generates (SKILL.md,
-    the supporting files, and ``chapters/``), so unrelated notes in the directory
+    the supporting files, and ``chapters/`` or ``sources/``), so unrelated notes in the directory
     are not scanned and cannot raise false findings. The risk is the *reporting*:
     printing "scan passed" while files the agent will happily read went unopened
     is a false assurance. Listing them keeps the bounded scope honest.
@@ -192,11 +193,14 @@ def _collect_skill_files(skill_dir: Path) -> list[Path]:
                 raise ScanError(f"{filename} must be a real file")
             candidates.add(supporting_file)
 
-    chapters = root / "chapters"
-    if chapters.exists():
-        if chapters.is_symlink() or not chapters.is_dir():
-            raise ScanError("chapters must be a real directory, not a symbolic link")
-        candidates.update(_walk_markdown(chapters))
+    for directory_name in GENERATED_CONTENT_DIRECTORIES:
+        content_directory = root / directory_name
+        if content_directory.exists():
+            if content_directory.is_symlink() or not content_directory.is_dir():
+                raise ScanError(
+                    f"{directory_name} must be a real directory, not a symbolic link"
+                )
+            candidates.update(_walk_markdown(content_directory))
 
     files = sorted(candidates, key=lambda path: path.relative_to(root).as_posix().lower())
     if len(files) > MAX_SKILL_FILES:
@@ -328,7 +332,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         for relative in skipped:
             print(f"  SKIP {_terminal_safe(relative)}")
         print(
-            "  Scope is SKILL.md, glossary/patterns/cheatsheet, and chapters/. "
+            "  Scope is SKILL.md, glossary/patterns/cheatsheet, and chapters/ or sources/. "
             "Move generated content there to have it scanned."
         )
 
