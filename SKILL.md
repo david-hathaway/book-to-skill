@@ -91,7 +91,7 @@ Throughout the workflow:
 - Identify the input paths and the optional skill slug.
 - If the last argument is not a file, folder, or glob that exists or matches any files, and it looks like a skill slug (e.g. lowercase hyphens, alphanumeric), treat it as `SKILL_NAME`.
 - Treat all other arguments as the list of `INPUT_PATHS`.
-- If any input path is an existing skill directory (contains `SKILL.md` and a `chapters/` sub-folder), or if `SKILL_NAME` matches an existing skill slug in `SKILLS_HOME`, flag this run as an **Update/Fold-in** operation (Mode 4).
+- If any input path is an existing skill directory (contains `SKILL.md` and either a `chapters/` or `sources/` sub-folder), or if `SKILL_NAME` matches an existing skill slug in `SKILLS_HOME`, flag this run as an **Update/Fold-in** operation (Mode 4).
 
 ---
 
@@ -551,9 +551,10 @@ Avoid: bare term→definition rows (that's the glossary), and prose paragraphs (
 Compaction truncates from the END — put the most important content FIRST.
 
 Create `$SKILLS_HOME/<skill_name>/SKILL.md`. For `SOURCE_SHAPE=long`, use the
-chapter-oriented template below. For `SOURCE_SHAPE=short`, use the short-source
-substitution immediately after it: replace book/chapter language with the actual
-source type, omit supporting-file links, and keep the master concise.
+chapter-oriented template below. For `SOURCE_SHAPE=short`, use the standalone
+short-source template after it. Do not start with the long template and edit it:
+the short template is intentionally complete and has no book, chapter, or
+supporting-file language.
 
 ```markdown
 ---
@@ -617,9 +618,16 @@ or ask the agent directly.
 <if images_dropped > 5: state that N source images were not read>
 ```
 
-For `SOURCE_SHAPE=short`, replace the metadata and Chapter Index portions with:
+For `SOURCE_SHAPE=short`, use this complete standalone template instead:
 
 ```markdown
+---
+name: <skill_name>
+description: "Knowledge base synthesized from <source type or source-set name>. Use when applying its reusable ideas for <key topics, 3–6 terms> or referencing its evidence and limits."
+---
+
+<!-- argument-hint: [topic, source number, or source title] -->
+
 # <Skill Title>
 **Sources**: <N> | **Generated**: <YYYY-MM-DD>
 
