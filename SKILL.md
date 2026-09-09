@@ -85,22 +85,35 @@ For **generated** book skills, pick a destination that the user's host agent can
 ## Step 0 — Out-of-scope check
 
 If no arguments are provided, stop and respond:
-> "book-to-skill requires a supported document path, folder, or glob pattern. Usage: `book-to-skill <path-to-document-folder-or-glob>... [skill-name-slug]`"
+> "book-to-skill requires a supported document path, public article URL, folder, or glob pattern. Usage: `book-to-skill <path-or-url-or-folder-or-glob>... [skill-name-slug]`"
 
 Throughout the workflow:
 - Identify the input paths and the optional skill slug.
 - If the last argument is not a file, folder, or glob that exists or matches any files, and it looks like a skill slug (e.g. lowercase hyphens, alphanumeric), treat it as `SKILL_NAME`.
-- Treat all other arguments as the list of `INPUT_PATHS`.
+- Treat all other arguments as `INPUT_SOURCES`. Split `INPUT_SOURCES` into local `INPUT_PATHS` and public `ARTICLE_URLS` (arguments beginning with `https://` or `http://`).
 - If any input path is an existing skill directory (contains `SKILL.md` and either a `chapters/` or `sources/` sub-folder), or if `SKILL_NAME` matches an existing skill slug in `SKILLS_HOME`, flag this run as an **Update/Fold-in** operation (Mode 4).
 
 ---
 
 ## Step 1 — Validate input
 
-Verify that there is at least one supported file, directory, or glob pattern among the `INPUT_PATHS`.
+Verify that there is at least one supported file, directory, glob pattern, or public article URL among the `INPUT_SOURCES`.
 For directories and globs, expand them to find matching supported files (`.pdf`, `.epub`, `.docx`, `.txt`, `.md`, `.markdown`, `.rst`, `.adoc`, `.html`, `.htm`, `.rtf`, `.mobi`, `.azw`, `.azw3`).
 
-If no supported files are found, stop with a clear error message.
+If no supported local files are found and `ARTICLE_URLS` is empty, stop with a clear error message.
+
+---
+
+## Step 1.25 — Fetch public web articles
+
+For every URL in `ARTICLE_URLS`, fetch only the public, readable article content before extraction:
+
+1. Use `web_extract` for the URL. If it fails because the page needs browser rendering, use the browser to load the page and capture the article's readable main content. Do not treat navigation, comments, related links, or advertising as source text.
+2. Do not bypass login walls, paywalls, CAPTCHAs, robots controls, or access restrictions. If access is restricted or the article cannot be reliably extracted, tell the user which URL failed and ask them to provide an authorized local export instead.
+3. Save the extracted main content as UTF-8 Markdown in a new per-run temporary directory, using a safe generated filename such as `article-01.md`. Preserve the canonical URL and the page title at the top of the file. Do not write article text into the installed skill directory or the repository.
+4. Store the saved paths as `REMOTE_SOURCE_FILES`, then replace the corresponding URLs in `INPUT_SOURCES` with those paths before Step 2. Treat each saved file as an ordinary short source; do not invent chapters from a single article.
+
+When a URL is a PDF, EPUB, or another directly downloadable supported document rather than an HTML article, download it only if it is publicly accessible and pass the saved file through the normal extractor. Keep the canonical URL in its source details.
 
 ---
 
@@ -129,7 +142,7 @@ Store the answer as `BOOK_TYPE`:
 
 ## Step 2 — Extract text from the source documents
 
-Run the extraction script, passing the input paths:
+Run the extraction script, passing the resolved local input paths. At this point, `INPUT_PATHS` includes `REMOTE_SOURCE_FILES` produced in Step 1.25.
 
 ```bash
 SCRIPT_PATH=""

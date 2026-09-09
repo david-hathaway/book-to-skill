@@ -8,8 +8,11 @@ seo_title: "How book-to-skill Works - Book to Agent Skill, Step by Step"
 ## ⚙️ How it works
 
 ```
-One file · a folder · a glob · a list of paths
+One file · public article URL · a folder · a glob · a list of paths
      │
+     ▼
+Step 1.25 — fetch public article content → per-run Markdown source file
+     │          (restricted pages stop; no access controls are bypassed)
      ▼
 Step 1.5 — "Technical or text-heavy book?"
      │

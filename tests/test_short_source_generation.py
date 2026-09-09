@@ -27,3 +27,13 @@ def test_master_skill_template_can_index_short_sources() -> None:
     assert "**Sources**: <N>" in skill
     assert "use this complete standalone template instead" in skill
     assert "argument-hint: [topic, source number, or source title]" in skill
+
+
+def test_generator_can_fetch_public_article_urls_before_extraction() -> None:
+    skill = SKILL_PATH.read_text(encoding="utf-8")
+
+    assert "## Step 1.25 — Fetch public web articles" in skill
+    assert "web_extract" in skill
+    assert "Do not bypass login walls, paywalls, CAPTCHAs" in skill
+    assert "REMOTE_SOURCE_FILES" in skill
+    assert "Treat each saved file as an ordinary short source" in skill

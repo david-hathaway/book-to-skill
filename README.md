@@ -119,7 +119,7 @@ Two halves: a deterministic Python **extractor** (document → clean text + meta
 
 ## 🚀 Usage
 
-`/book-to-skill <path|folder|glob> [skill-name]` — plus analyze-only, generate-from-analysis, and update/fold-in modes. After a conversion, the converter can publish the skill to GitHub (private by default) so any host installs it with `npx skills add`.
+`/book-to-skill <path|public-article-url|folder|glob> [skill-name]` — plus analyze-only, generate-from-analysis, and update/fold-in modes. Public article URLs are saved as per-run source files before extraction; login-only, paywalled, CAPTCHA-protected, and otherwise restricted pages require an authorized local export. After a conversion, the converter can publish the skill to GitHub (private by default) so any host installs it with `npx skills add`.
 
 ▶️ **All modes and examples → [docs/usage.md](docs/usage.md)**
 

@@ -6,7 +6,7 @@ seo_title: "Usage - Convert a Book, Folder, or Glob into an Agent Skill"
 ## 🚀 Usage
 
 ```
-/book-to-skill <path-to-document-folder-or-glob>... [skill-name-slug]
+/book-to-skill <path-or-public-article-url-or-folder-or-glob>... [skill-name-slug]
 ```
 
 Supported document formats: PDF, EPUB, DOCX, TXT, Markdown, reStructuredText, AsciiDoc, HTML, RTF, MOBI/AZW/AZW3.
@@ -23,6 +23,9 @@ Supported document formats: PDF, EPUB, DOCX, TXT, Markdown, reStructuredText, As
 # Convert one article into a compact source-note skill
 /book-to-skill ~/reading/local-ai-article.html local-ai-notes
 
+# Fetch a public web article, save its readable content for this run, and convert it
+/book-to-skill https://example.com/research/article local-ai-notes
+
 # Convert several independent articles into one indexed source-note skill
 /book-to-skill "~/reading/home-services/*.md" home-services-reading
 
@@ -32,6 +35,8 @@ Supported document formats: PDF, EPUB, DOCX, TXT, Markdown, reStructuredText, As
 # Update/fold new material into an existing skill folder
 /book-to-skill ~/articles/new-paper.pdf ~/.claude/skills/project-knowledge
 ```
+
+Public article URLs are fetched into a per-run temporary file before normal extraction. Login-only, paywalled, CAPTCHA-protected, or otherwise access-restricted pages are not bypassed; provide an authorized local export for those sources.
 
 After the skill is created, use it like any other agent skill:
 
